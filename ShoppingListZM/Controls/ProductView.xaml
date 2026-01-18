@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:ShoppingListZM.Models"
+             x:Class="ShoppingListZM.Controls.ProductView"
+             x:DataType="models:Product">
+
+    <Frame BackgroundColor="{Binding IsPurchased, Converter={StaticResource IsPurchasedToColorConverter}}" 
+           BorderColor="#FF69B4" CornerRadius="15" HasShadow="True" Margin="5,2" Padding="10">
+
+        <Grid ColumnDefinitions="Auto, *, Auto, Auto" VerticalOptions="Center">
+            <CheckBox IsChecked="{Binding IsPurchased}" Color="#FF69B4" Grid.Column="0" />
+
+            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Margin="10,0">
+                <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" TextColor="#444"
+                       TextDecorations="{Binding IsPurchased, Converter={StaticResource IsPurchasedToTextDecorationsConverter}}" />
+                <Label Text="{Binding Unit}" FontSize="12" TextColor="#D02090" FontAttributes="Italic" />
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                <Button Text="-" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DecreaseQuantityCommand}" 
+                        CommandParameter="{Binding .}" BackgroundColor="#FFB6C1" CornerRadius="18" WidthRequest="36" HeightRequest="36" Padding="0"/>
+
+                <Entry Text="{Binding Quantity, Mode=TwoWay}" Keyboard="Numeric" WidthRequest="50" 
+                       HorizontalTextAlignment="Center" TextColor="#D02090" FontAttributes="Bold" />
+
+                <Button Text="+" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.IncreaseQuantityCommand}" 
+                        CommandParameter="{Binding .}" BackgroundColor="#FF69B4" CornerRadius="18" WidthRequest="36" HeightRequest="36" Padding="0"/>
+            </HorizontalStackLayout>
+
+            <Button Grid.Column="3" Text="✕" Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveProductCommand}" 
+                    CommandParameter="{Binding .}" BackgroundColor="Transparent" TextColor="#FF1493" FontSize="18" WidthRequest="40" />
+        </Grid>
+    </Frame>
+</ContentView>

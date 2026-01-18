@@ -1,101 +1,46 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="ShoppingListZM.Views.MainPage"
+             xmlns:viewModels="clr-namespace:ShoppingListZM.ViewModels"
              xmlns:models="clr-namespace:ShoppingListZM.Models"
-             xmlns:vm="clr-namespace:ShoppingListZM.ViewModels"
-             Title="Lista Zakupów">
+             xmlns:controls="clr-namespace:ShoppingListZM.Controls"
+             x:Class="ShoppingListZM.Views.MainPage"
+             x:Name="page"
+             Title="Lista Zakupów"
+             x:DataType="viewModels:ViewModel">
 
     <ContentPage.BindingContext>
-        <vm:MainPageViewModel />
+        <viewModels:ViewModel />
     </ContentPage.BindingContext>
 
-    <Grid RowDefinitions="Auto,*">
-        <VerticalStackLayout Grid.Row="0" Spacing="10" Padding="10">
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <Button Grid.Column="0" Text="DODAJ PRODUKT"
-                        Clicked="OnAddProductClicked"
-                        BackgroundColor="#FFB6D9" TextColor="#B30059" FontSize="16" FontAttributes="Bold" HeightRequest="50" />
-                <Button Grid.Column="1" Text="DODAJ KATEGORIĘ"
-                        Clicked="OnAddCategoryClicked"
-                        BackgroundColor="#FFC2E0" TextColor="#B30059" FontSize="16" FontAttributes="Bold" HeightRequest="50" />
-            </Grid>
+    <Grid RowDefinitions="Auto, *" BackgroundColor="#FFF9FB">
+        <Button Text="+ NOWA KATEGORIA" Command="{Binding AddCategoryCommand}" 
+                Margin="15" BackgroundColor="#FF69B4" TextColor="White" CornerRadius="25" HeightRequest="50" FontAttributes="Bold" />
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                <Picker Grid.Column="0" Title="Filtruj wg sklepu"
-                        ItemsSource="{Binding AvailableStores}"
-                        SelectedItem="{Binding StoreFilter}" />
-                <Picker Grid.Column="1" Title="Sortuj wg"
-                        ItemsSource="{Binding AvailableSortOptions}"
-                        SelectedItem="{Binding SelectedSortOption}" />
-            </Grid>
-        </VerticalStackLayout>
-
-        <CollectionView x:Name="CategoriesList"
-                        Grid.Row="1"
-                        ItemsSource="{Binding GroupedProducts}"
-                        IsGrouped="True"
-                        SelectionMode="None">
-            <CollectionView.GroupHeaderTemplate>
-                <DataTemplate x:DataType="models:ProductGroup">
-                    <Grid Padding="10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Text="{Binding IsExpanded, Converter={StaticResource BoolToArrowConverter}}"
-                                Clicked="ToggleCategoryExpanded" WidthRequest="40" HeightRequest="40" BackgroundColor="Transparent" />
-                        <Label Grid.Column="1" Text="{Binding GroupName}"
-                               FontSize="18" FontAttributes="Bold" VerticalOptions="Center" />
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.GroupHeaderTemplate>
-
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Categories}">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Product">
-                    <Border Padding="10" Margin="5,0,5,5" StrokeThickness="1" Stroke="#FFB6D9">
-                        <VerticalStackLayout Spacing="5">
- 
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
-                                <CheckBox Grid.Column="0"
-                                          IsChecked="{Binding IsPurchased}"
-                                          CheckedChanged="OnProductCheckedChanged"
-                                          VerticalOptions="Center" />
-                                <Label Grid.Column="1" Text="{Binding Name}"
-                                       FontSize="16" VerticalOptions="Center">
-                                    <Label.Style>
-                                        <Style TargetType="Label">
-                                            <Setter Property="TextColor" Value="Black" />
-                                            <Style.Triggers>
-                                                <DataTrigger TargetType="Label" Binding="{Binding IsPurchased}" Value="True">
-                                                    <Setter Property="TextColor" Value="Gray" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Label.Style>
-                                </Label>
-                                <Button Grid.Column="2" Text="X"
-                                        Clicked="OnDeleteProductClicked"
-                                        BackgroundColor="#FF69A5" TextColor="White" WidthRequest="40" HeightRequest="35" CornerRadius="8" />
+                <DataTemplate x:DataType="models:Category">
+                    <VerticalStackLayout Padding="10,0,10,15">
+                        <Frame BackgroundColor="#FFD1DC" BorderColor="Transparent" CornerRadius="12" Padding="12">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" TextColor="#D02090" VerticalOptions="Center" />
+                                <Button Grid.Column="1" Text="+ Produkt" FontSize="11" BackgroundColor="#FF69B4" CornerRadius="15" 
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ViewModel}}, Path=AddProductCommand}" 
+                                        CommandParameter="{Binding .}" HeightRequest="30" />
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:ViewModel}}, Path=ToggleExpandCommand}" CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
                             </Grid>
+                        </Frame>
 
-                            <Grid ColumnDefinitions="Auto,Auto,*,Auto,Auto" ColumnSpacing="5" Margin="30,0,0,0">
-                                <Button Grid.Column="1" Text="-"
-                                        Clicked="OnDecreaseQuantityClicked"
-                                        BackgroundColor="#FFB6D9" TextColor="White" WidthRequest="35" HeightRequest="35" CornerRadius="8" />
-                                <Entry Grid.Column="2" Text="{Binding Quantity}"
-                                      Keyboard="Numeric"
-                                      Completed="OnQuantityCompleted"
-                                      HorizontalOptions="FillAndExpand"
-                                      VerticalOptions="Center"
-                                      Margin="5,0"/>
-                                <Label Grid.Column="3" Text="{Binding Unit}" VerticalOptions="Center" FontSize="14" />
-                                <Button Grid.Column="4" Text="+"
-                                        Clicked="OnIncreaseQuantityClicked"
-                                        BackgroundColor="#FF69A5" TextColor="White" WidthRequest="35" HeightRequest="35" CornerRadius="8" />
-                            </Grid>
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Products}" IsVisible="{Binding IsExpanded}" Margin="10,5,0,0">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate>
+                                    <controls:ProductView />
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
                         </VerticalStackLayout>
-                    </Border>
+                    </VerticalStackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
